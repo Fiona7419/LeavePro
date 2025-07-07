@@ -1,0 +1,248 @@
+{% extends 'template_A.html' %}
+
+{% block content %}
+<head>
+    <style>
+        body {
+            background-color: #f4f4f9;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+            max-width: 600px;
+            width: 100%;
+            transition: all 0.3s ease-in-out;
+        }
+
+        h2 {
+            text-align: center;
+            color: #343a40;
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #444;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease-in-out;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #6c63ff;
+            box-shadow: 0 0 8px rgba(108, 99, 255, 0.5);
+            outline: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #6c63ff, #8a76ff);
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(to right, #5a52e6, #7760e6);
+        }
+
+        .btn-secondary {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            color: #6c63ff;
+            font-weight: bold;
+        }
+
+        .alert {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .success-alert {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-alert {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .tab-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .tab-buttons button {
+            flex: 1;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .active-tab {
+            background-color: #6c63ff;
+            color: white;
+            border-radius: 6px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<div class="main-content">
+    <div class="card">
+        <h2>Leave Entry</h2>
+
+        <div class="tab-buttons">
+            <button id="emailTabBtn" class="active-tab" onclick="showTab('emailTab')">Email Input</button>
+            <button id="manualTabBtn" onclick="showTab('manualTab')">Manual Entry</button>
+        </div>
+
+        <!-- Email-based Leave Entry -->
+        <div id="emailTab" class="tab-content active">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="entry_mode" value="email">
+                <div class="form-group">
+                    <label for="email_text">Paste Email Content:</label>
+                    <textarea id="email_text" class="form-control" name="email_text" rows="6" placeholder="Paste the email content here..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+
+        <!-- Summary Section (Shows Only if Data is Extracted) -->
+        {% if show_summary %}
+        <form method="post" action="{% url 'apply_leave' %}">
+            {% csrf_token %}
+            <input type="hidden" name="faculty_name" value="{{ faculty_name }}">
+            <input type="hidden" name="faculty_id" value="{{ faculty_id }}">
+            <input type="hidden" name="faculty_email" value="{{ faculty_email }}">
+            <input type="hidden" name="department" value="{{ department }}">
+            <input type="hidden" name="designation" value="{{ designation }}">
+            <input type="hidden" name="leave_type" value="{{ leave_type }}">
+            <input type="hidden" name="start_date" value="{{ start_date }}">
+            <input type="hidden" name="end_date" value="{{ end_date }}">
+            <input type="hidden" name="reason" value="{{ reason }}">
+            <input type="hidden" name="entry_mode" value="email">
+
+            <p><strong>Faculty Name:</strong> {{ faculty_name }}</p>
+            <p><strong>Leave Type:</strong> {{ leave_type }}</p>
+            <p><strong>Start Date:</strong> {{ start_date }}</p>
+            <p><strong>End Date:</strong> {{ end_date }}</p>
+            <p><strong>Reason:</strong> {{ reason }}</p>
+
+            <button type="submit" name="confirm" value="true" class="btn btn-primary" onclick="console.log('Confirm button clicked')">Confirm and Submit</button>
+        </form>
+        {% endif %}
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if 'leave_error' in message.tags %}
+                    <div class="alert alert-danger">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <!-- Manual Leave Entry -->
+        <div id="manualTab" class="tab-content">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="entry_mode" value="manual">
+                <div class="form-group">
+                    <label for="faculty_id">Faculty ID:</label>
+                    <input type="text" id="faculty_id" name="faculty_id" placeholder="Enter Faculty ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="faculty_name">Faculty Name:</label>
+                    <input type="text" id="faculty_name" name="faculty_name" placeholder="Enter Faculty Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="leave_type">Leave Type:</label>
+                    <select id="leave_type" name="leave_type">
+                        <option value="Sick Leave">Sick Leave</option>
+                        <option value="Casual Leave">Casual Leave</option>
+                        <option value="Maternity Leave">Maternity Leave</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" id="start_date" name="start_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date:</label>
+                    <input type="date" id="end_date" name="end_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="reason">Reason for Leave:</label>
+                    <textarea id="reason" name="reason" rows="4" placeholder="Enter reason for leave..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+
+        <a href="{% url 'faculty_list' %}" class="btn btn-secondary">Back to Faculty List</a>
+    </div>
+</div>
+
+<script>
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+    }
+</script>
+
+{% endblock %}

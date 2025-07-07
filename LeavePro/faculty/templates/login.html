@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { display: flex; height: 100vh; overflow: hidden; }
+        .image-container { flex: 7; display: flex; align-items: center; justify-content: center; }
+        .image-container img { width: 100%; height: 100vh; object-fit: cover; }
+        .form-container { flex: 4; display: flex; justify-content: center; align-items: center; background-color: #6f42c1; }
+        .card { width: 400px; padding: 30px; border-radius: 10px; background-color: white; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); }
+        h2 { text-align: center; color: #6f42c1; }
+        .btn-custom { width: 100%; padding: 12px; font-size: 1.2rem; border-radius: 8px; background-color: #431c4f; color: white; border: none; }
+        .btn-custom:hover { background-color: #5a3c77; }
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <img src="{% static 'images/bg.svg' %}" alt="Background Image">
+    </div>
+
+    <div class="form-container">
+        <div class="card">
+            <h2>Login</h2>
+
+            {% if messages %}
+                <div class="alert alert-danger">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Username Field -->
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    <input type="text" name="username" id="id_username" class="form-control" required>
+                </div><br>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="id_password">Password</label>
+                    <input type="password" name="password" id="id_password" class="form-control" required>
+                </div><br>
+
+                <!-- Role Field -->
+                <div class="form-group">
+                    <label for="id_role">Role</label>
+                    <select name="role" id="id_role" class="form-control">
+                        <option value="admin">Admin</option>
+                        <option value="hod">HOD</option>
+                    </select>
+                </div><br>
+
+                <!-- Department Field (Hidden Initially) -->
+                <div class="form-group" id="departmentField" style="display: none;">
+                    <label for="id_department">Department</label>
+                    <select name="department" id="id_department" class="form-control">
+                        {% for dept in departments %}
+                            <option value="{{ dept.id }}">{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div><br>
+
+                <button type="submit" class="btn btn-custom">Login</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="{% url 'password_reset' %}">Forgot Password?</a>
+            </div>
+            <div class="text-center mt-2">
+                <p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let roleDropdown = document.getElementById("id_role");
+            let departmentField = document.getElementById("departmentField");
+
+            if (!roleDropdown || !departmentField) {
+                console.error("Role dropdown or department field not found.");
+                return;
+            }
+
+            function toggleDepartmentField() {
+                departmentField.style.display = (roleDropdown.value === "hod") ? "block" : "none";
+            }
+
+            roleDropdown.addEventListener("change", toggleDepartmentField);
+            toggleDepartmentField();  // Ensure correct state on load
+        });
+    </script>
+
+</body>
+</html>

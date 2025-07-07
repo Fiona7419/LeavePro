@@ -1,0 +1,39 @@
+.wrapper
+{display:flex;
+}
+#sidebar
+{
+min-width:170px;
+height:100vh;
+position:fixed;
+background-color:#000000;
+color:#ffffff;
+text-align: center
+z-index: 1000; /* Ensure it's visible */
+overflow-y: auto;
+}
+a.active
+{
+background-color: #000000;
+padding: 10px;
+border-radius: 5px;
+border: 2px solid #6f42c1;
+color: white !important;
+text-decoration: none;
+transition: all 0.3s ease;
+}
+a:hover
+{
+border-color: white;
+}
+a
+{
+color: #ffffff;
+text-decoration:none;
+}
+footers
+{
+position:relative;
+clear:both;
+margin-top:635px;
+}

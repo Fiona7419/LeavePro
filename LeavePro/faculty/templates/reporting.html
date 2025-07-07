@@ -1,0 +1,170 @@
+{% extends 'template_A.html' %}
+{% block content %}
+
+<h1 style="text-align: center; font-family: 'Arial', sans-serif; font-weight: bold;">Leave Calendar</h1><br><br>
+
+<!-- Sorting & Filtering Form -->
+<form method="get" action="{% url 'generate_report' %}" style="text-align: center; margin-bottom: 20px;">
+    <label for="filter_type">Filter By:</label>
+    <select name="filter_type" id="filter_type" class="styled-dropdown">
+        <option value="">Select</option>
+    </select>
+    <button type="submit" class="gradient-button">Sort</button>
+</form>
+<br>
+
+<!-- File Upload Form -->
+<div style="text-align: center; margin-bottom: 20px;">
+    <a href="{% url 'export_to_csv' %}" class="gradient-button">Download CSV</a>
+    <a href="{% url 'export_to_excel' %}" class="gradient-button">Download Excel</a>
+</div>
+<br>
+
+<!-- Leave Balance Report -->
+{% if paginated_faculty_data %}
+    {% for faculty, leave_data in paginated_faculty_data %}
+        <h3 style="text-align: center;">👤 {{ faculty.name }} - Leave Report</h3>
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Leave Type</th>
+                    <th>Entitled</th>
+                    <th>Availed</th>
+                    <th>Availing</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for leave_type, data in leave_data.items %}
+                <tr>
+                    <td>{{ leave_type }}</td>
+                    <td>{{ data.Entitled }}</td>
+                    <td>{{ data.Availed }}</td>
+                    <td>{{ data.Availing }}</td>
+                    <td>{{ data.Balance }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+    {% endfor %}
+
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        {% if paginated_faculty_data.has_previous %}
+            <a href="?page=1">First</a>
+            <a href="?page={{ paginated_faculty_data.previous_page_number }}">Previous</a>
+        {% endif %}
+        <span>Page {{ paginated_faculty_data.number }} of {{ paginated_faculty_data.paginator.num_pages }}</span>
+        {% if paginated_faculty_data.has_next %}
+            <a href="?page={{ paginated_faculty_data.next_page_number }}">Next</a>
+            <a href="?page={{ paginated_faculty_data.paginator.num_pages }}">Last</a>
+        {% endif %}
+    </div>
+{% else %}
+    <p>No individual leave records found.</p>
+{% endif %}
+<br><br>
+
+<!-- Individual Faculty Leave Records -->
+{% if paginated_faculty_data %}
+<h3 style="text-align: center;">📜 Individual Faculty Leave Details</h3>
+<table class="styled-table">
+    <thead>
+        <tr>
+            <th>Faculty Name</th>
+            <th>Leave Type</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Description</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for faculty, leaves in paginated_faculty_data %}
+            <tr class="faculty-row">
+                <td colspan="6">{{ faculty.name }}</td>
+            </tr>
+            {% for leave in leaves %}
+            <tr>
+                <td></td>
+                <td>{{ leave.leave_type }}</td>
+                <td>{{ leave.start_date }}</td>
+                <td>{{ leave.end_date }}</td>
+                <td>{{ leave.reason }}</td>
+                <td>{{ leave.status }}</td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No individual leave records found.</p>
+{% endif %}
+
+<!-- Pagination Controls for Individual Leave Details -->
+<div class="pagination">
+    {% if paginated_faculty_data.has_previous %}
+        <a href="?page=1">First</a>
+        <a href="?page={{ paginated_faculty_data.previous_page_number }}">Previous</a>
+    {% endif %}
+    <span>Page {{ paginated_faculty_data.number }} of {{ paginated_faculty_data.paginator.num_pages }}</span>
+    {% if paginated_faculty_data.has_next %}
+        <a href="?page={{ paginated_faculty_data.next_page_number }}">Next</a>
+        <a href="?page={{ paginated_faculty_data.paginator.num_pages }}">Last</a>
+    {% endif %}
+</div>
+
+<!-- CSS Styling -->
+<style>
+    .styled-dropdown {
+        padding: 10px;
+        border: 2px solid #6a5acd;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+    .styled-file-input {
+        padding: 10px;
+        border: 2px solid #6a5acd;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+    .gradient-button {
+        background: linear-gradient(135deg, #6a5acd, #00bcd4);
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        color: white;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    .gradient-button:hover {
+        transform: scale(1.05);
+    }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .styled-table th, .styled-table td {
+        padding: 12px;
+        text-align: left;
+    }
+    .styled-table head {
+        background: linear-gradient(135deg, #6a5acd, #00bcd4);
+        color: white;
+    }
+    .styled-table tr:nth-child(even) {
+        background: #f3f3f3;
+    }
+    .faculty-row {
+        font-weight: bold;
+        background-color: #ddd;
+    }
+</style>
+
+{% endblock %}

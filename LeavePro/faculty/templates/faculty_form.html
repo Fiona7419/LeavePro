@@ -1,0 +1,168 @@
+{% extends 'template_A.html' %}
+
+{% block content %}
+<head>
+    <style>
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f3e5f5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(75, 0, 130, 0.2);
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #4B0082;
+        }
+
+        /* Tabs */
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            border-bottom: 2px solid #8A2BE2;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: #eee;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            transition: 0.3s;
+        }
+
+        .tab.active {
+            background-color: #8A2BE2;
+            color: white;
+        }
+
+        /* Forms */
+        .form-container {
+            padding: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #8A2BE2;
+            box-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
+        }
+
+        button {
+            background: linear-gradient(135deg, #6A0DAD, #8A2BE2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #8A2BE2, #4B0082);
+            transform: scale(1.05);
+            box-shadow: 0px 5px 15px rgba(75, 0, 130, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #4B0082;
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+            margin-top: 20px;
+            display: inline-block;
+            transition: 0.3s;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #6A0DAD;
+        }
+    </style>
+</head>
+
+<div class="container">
+    <h2>Faculty Entry</h2>
+
+    <!-- Tabs -->
+    <div class="tab-container">
+        <button class="tab active" onclick="switchTab('manual')">Manual Entry</button>
+        <button class="tab" onclick="switchTab('excel')">Excel Upload</button>
+    </div>
+
+    <!-- Manual Entry Form -->
+    <div id="manual-form" class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <!-- Excel Upload Form -->
+    <div id="excel-form" class="form-container hidden">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="excel_file" accept=".xls,.xlsx">
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{% url 'faculty_list' %}" class="btn-secondary">Back to Faculty List</a>
+    </div>
+</div>
+
+<script>
+    function switchTab(tab) {
+        // Remove active class from both tabs
+        document.querySelectorAll('.tab').forEach(tabBtn => tabBtn.classList.remove('active'));
+
+        // Hide both forms
+        document.getElementById('manual-form').classList.add('hidden');
+        document.getElementById('excel-form').classList.add('hidden');
+
+        // Show the selected form and highlight the tab
+        if (tab === 'manual') {
+            document.getElementById('manual-form').classList.remove('hidden');
+            document.querySelectorAll('.tab')[0].classList.add('active');
+        } else {
+            document.getElementById('excel-form').classList.remove('hidden');
+            document.querySelectorAll('.tab')[1].classList.add('active');
+        }
+    }
+</script>
+
+{% endblock %}

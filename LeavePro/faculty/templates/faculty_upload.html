@@ -1,0 +1,27 @@
+{% extends 'template_A.html' %}
+
+{% block content %}
+<div class="main-content">
+    <div class="form-container">
+        <h2>Upload Faculty Excel File</h2>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="faculty_excel" accept=".xls,.xlsx" required>
+            <button type="submit">Upload</button>
+        </form>
+
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{% url 'faculty_list' %}" class="btn btn-secondary">Back to Faculty List</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

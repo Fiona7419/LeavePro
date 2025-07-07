@@ -1,0 +1,190 @@
+{% extends 'template_A.html' %}
+
+{% block content %}
+<head>
+    <style>
+        body {
+            background-color: #f9f6ff;
+        }
+        .container {
+            max-width: 1100px;
+            margin-top: 30px;
+        }
+        .card {
+            border-radius: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: white;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #6a1b9a;
+        }
+        .card-text {
+            font-size: 16px;
+            color: #4a148c;
+        }
+        .icon-container {
+            font-size: 30px;
+            color: #6a1b9a;
+        }
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .table th {
+            background-color: #6a1b9a;
+            color: white;
+            text-align: center;
+        }
+        .table td {
+            text-align: center;
+        }
+        .status-approved {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: #ff9800;
+            font-weight: bold;
+        }
+        .status-rejected {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<div class="container">
+    <h2 class="text-center mb-4" style="color: #6a1b9a;">Faculty Leave Dashboard</h2>
+
+    <div class="row g-4">
+        <!-- Total Faculty Members -->
+        <div class="col-lg-4 col-md-6 d-flex">
+            <div class="card flex-fill p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-container me-3">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title">Total Faculty</h5>
+                        <p class="card-text fw-bold">{{ total_faculty }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Leaves -->
+        <div class="col-lg-4 col-md-6 d-flex">
+            <div class="card flex-fill p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-container me-3">
+                        <i class="bi bi-calendar-event"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title">Upcoming Leaves</h5>
+                        <p class="card-text fw-bold">
+                            {% if upcoming_leaves %}
+                                {{ upcoming_leaves.count }} upcoming leave(s).
+                            {% else %}
+                                No upcoming leaves.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+    <div class="col-12">
+        <div class="card p-4">
+            <h5 class="card-title">Leave Balance Summary</h5>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Faculty Name</th>
+                        <th>Total Leaves</th>
+                        <th>Leaves Taken</th>
+                        <th>Remaining Leaves</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for faculty_id, data in leave_summary.items %}
+                    <tr>
+                        <td>{{ data.name }}</td>
+                        <td>{{ data.total_leaves }}</td>
+                        <td>{{ data.leaves_taken }}</td>
+                        <td>{{ data.remaining_leaves }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">No leave records available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+        <div class="row mt-4">
+          <div class="col-md-6 offset-md-3">
+              <div class="card p-3">
+                <h5 class="card-title text-center">Leave Type Distribution</h5>
+                <div id="leaveChartContainer">
+                    <canvas id="leaveChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="leave-data" type="application/json">{{ leave_count_json|safe }}</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    try {
+        var leaveData = JSON.parse(document.getElementById("leave-data").textContent);
+        console.log("Leave Data:", leaveData);
+
+        var leaveLabels = Object.keys(leaveData);
+        var leaveValues = Object.values(leaveData);
+
+        console.log("Labels:", leaveLabels);
+        console.log("Values:", leaveValues);
+
+        var ctx = document.getElementById('leaveChart').getContext('2d');
+
+        if (!ctx) {
+            console.error("Canvas element not found!");
+            return;
+        }
+
+        var leaveChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: leaveLabels,
+                datasets: [{
+                    data: leaveValues,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#9C27B0'],
+                    hoverOffset: 4
+                }]
+            }
+        });
+    } catch (error) {
+        console.error("Error in chart script:", error);
+    }
+});
+</script>
+{% endblock %}

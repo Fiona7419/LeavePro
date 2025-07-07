@@ -1,0 +1,103 @@
+{% extends 'template_A.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Profile Header with Gradient Background -->
+    <div class="profile-header p-4 mb-4 text-white text-center shadow-lg"
+        style="background: linear-gradient(135deg, #6a0dad, #b19cd9); border-radius: 15px;">
+        <h2 id="faculty-name" class="fw-bold">{{ faculty.name }}</h2>
+    </div>
+
+    <div class="card p-4 shadow-lg">
+        <!-- Edit Form -->
+        <form method="POST" id="edit-form" style="display: none;">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label"><strong>Name:</strong></label>
+                <input type="text" name="name" class="form-control" value="{{ faculty.name }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label"><strong>Email:</strong></label>
+                <input type="email" name="email" class="form-control" value="{{ faculty.email }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label"><strong>Department:</strong></label>
+                <input type="text" name="department" class="form-control" value="{{ faculty.department }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label"><strong>Role:</strong></label>
+                <input type="text" name="role" class="form-control" value="{{ faculty.designation }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label"><strong>Phone Number:</strong></label>
+                <input type="text" name="phone_number" class="form-control" value="{{ faculty.phone_number }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label"><strong>Date of Joining:</strong></label>
+                <input type="date" name="date_of_joining" class="form-control" value="{{ faculty.date_of_joining|date:'Y-m-d' }}">
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-success px-4">Save Changes</button>
+                <button type="button" class="btn btn-secondary px-4" onclick="toggleEdit(false)">Cancel</button>
+            </div>
+        </form>
+
+        <!-- Static View Mode -->
+        <div id="view-mode">
+            <p class="mb-2"><strong>Email:</strong> {{ faculty.email }}</p>
+            <p class="mb-2"><strong>Department:</strong> {{ faculty.department }}</p>
+            <p class="mb-2"><strong>Role:</strong> {{ faculty.designation }}</p>
+            <p class="mb-2"><strong>Phone Number:</strong> {{ faculty.phone_number }}</p>
+            <p class="mb-4"><strong>Date of Joining:</strong> {{ faculty.date_of_joining }}</p>
+
+            <h4 class="mt-4">Leave Summary</h4>
+           {% if leaves %}
+               <p><strong>Leave Balance:</strong> {{ leave_balance }}</p>
+               {% for leave in leaves %}
+                  <p><strong>Leave Type:</strong> {{ leave.leave_type }} |
+                      <strong>Start Date:</strong> {{ leave.start_date }} |
+                      <strong>End Date:</strong> {{ leave.end_date }} |
+                      <strong>Status:</strong>
+                      {% if leave.status == "Approved" %}
+                                 ✅ Approved
+                      {% elif leave.status == "Pending" %}
+                                 ⚠️ Pending
+                      {% else %}
+                                  ❌ Rejected
+                      {% endif %}
+                  </p>
+               {% endfor %}
+           {% else %}
+          <p class="text-muted">No leave records available.</p>
+          {% endif %}
+
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-primary px-4" onclick="toggleEdit(true)">Edit</button>
+                <a href="{% url 'faculty_delete' faculty.faculty_id %}" class="btn btn-danger px-4"
+                    onclick="return confirm('Are you sure you want to delete this faculty member?')">Delete</a>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'faculty_list' %}" class="btn btn-outline-secondary px-4">Back to Faculty List</a>
+        </div>
+
+
+    </div>
+</div>
+
+<!-- JavaScript to Toggle Between View and Edit Mode -->
+<script>
+    function toggleEdit(editMode) {
+        document.getElementById("view-mode").style.display = editMode ? "none" : "block";
+        document.getElementById("edit-form").style.display = editMode ? "block" : "none";
+    }
+</script>
+{% endblock %}
